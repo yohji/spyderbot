@@ -3,6 +3,7 @@ import hashlib
 
 
 class Country (models.Model):
+
     code = models.CharField(primary_key = True, max_length = 2)
     description = models.CharField(max_length = 25)
 
@@ -11,6 +12,7 @@ class Country (models.Model):
 
 
 class CarModel (models.Model):
+
     hashkey = models.CharField(primary_key = True, max_length = 64)
     maker = models.CharField(max_length = 255)
     model = models.CharField(max_length = 255)
@@ -29,6 +31,7 @@ class CarModel (models.Model):
 
 
 class CarVersion (models.Model):
+
     hashkey = models.CharField(primary_key = True, max_length = 64)
     car_model = models.ForeignKey(CarModel, on_delete=models.PROTECT)
     version = models.CharField(max_length = 255)
@@ -42,11 +45,11 @@ class CarVersion (models.Model):
 
 
 class CarOffer (models.Model):
+
     hashkey = models.CharField(primary_key = True, max_length = 64)
     car_version = models.ForeignKey(CarVersion, on_delete=models.PROTECT)
-    country = models.ForeignKey(Country, on_delete=models.PROTECT)
+    # country = models.ForeignKey(Country, on_delete=models.PROTECT)
+    link = models.CharField(max_length = 2048, null = True)
     price = models.IntegerField(db_index = True)
     miliage = models.IntegerField()
-    year = models.IntegerField()
-    month = models.IntegerField()
     timestamp = models.DateTimeField(auto_now = True)
