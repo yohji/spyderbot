@@ -1,5 +1,5 @@
 from django.test import TestCase
-from car.crawler import autoscout24
+from car.crawler import as24
 
 
 class CrawlerTestCase(TestCase):
@@ -7,8 +7,8 @@ class CrawlerTestCase(TestCase):
     def setUp(self):
         pass
 
-    def test_autoscout24(self):
+    def test_as24(self):
 
-        # self.assertEqual(autoscout24(), 'without parameters')
-        # self.assertEqual(autoscout24('triumph'), 'maker is triumph')
-        self.assertEqual(autoscout24('triumph', 'spitfire'), 'maker is triumph and model is spitfire')
+        # self.assertEqual(as24(), 'without parameters')
+        # self.assertEqual(as24('triumph'), 'maker is triumph')
+        self.assertEqual(as24('triumph', 'spitfire'), 'maker is triumph and model is spitfire')

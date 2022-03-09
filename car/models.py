@@ -2,10 +2,11 @@ from django.db import models
 import hashlib
 
 
-class Country (models.Model):
+class Market (models.Model):
 
     code = models.CharField(primary_key = True, max_length = 2)
     description = models.CharField(max_length = 25)
+    as24 = models.CharField(null = True, max_length = 1)
 
     def __str__(self):
         return self.description
@@ -27,7 +28,7 @@ class CarModel (models.Model):
         super().save(self)
 
     def __str__(self):
-        return "%s %s" % (self.maker, self.model)
+        return "%s|%s" % (self.maker, self.model)
 
 
 class CarVersion (models.Model):
@@ -41,15 +42,23 @@ class CarVersion (models.Model):
     timestamp = models.DateTimeField(auto_now = True)
 
     def __str__(self):
-        return "%s %s" % (self.car_model.__str__(), self.version)
+        return "[%s]|%s|%s|%s|%s" % (self.car_model, self.version,
+                             self.year, self.fuel, self.gear)
 
 
 class CarOffer (models.Model):
 
     hashkey = models.CharField(primary_key = True, max_length = 64)
     car_version = models.ForeignKey(CarVersion, on_delete=models.PROTECT)
-    # country = models.ForeignKey(Country, on_delete=models.PROTECT)
-    link = models.CharField(max_length = 2048, null = True)
+    # market = models.ForeignKey(Market, on_delete=models.PROTECT)
+    market = models.CharField(max_length = 2)
     price = models.IntegerField(db_index = True)
+    seller = models.CharField(max_length = 64, null = True)
     miliage = models.IntegerField()
+    link = models.CharField(max_length = 2048, null = True)
     timestamp = models.DateTimeField(auto_now = True)
+
+    def __str__(self):
+        return "[%s]%s||%s|%s|%s|%s" % (self.car_version, self.market, 
+                                        self.price, self.seller, 
+                                        self.miliage, self.link)
