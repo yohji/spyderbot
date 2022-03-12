@@ -51,7 +51,6 @@ class CarOffer (models.Model):
     hashkey = models.CharField(primary_key = True, max_length = 64)
     car_version = models.ForeignKey(CarVersion, on_delete=models.PROTECT)
     # market = models.ForeignKey(Market, on_delete=models.PROTECT)
-    market = models.CharField(max_length = 2)
     price = models.IntegerField(db_index = True)
     seller = models.CharField(max_length = 64, null = True)
     miliage = models.IntegerField()
@@ -59,6 +58,6 @@ class CarOffer (models.Model):
     timestamp = models.DateTimeField(auto_now = True)
 
     def __str__(self):
-        return "[%s]%s||%s|%s|%s|%s" % (self.car_version, self.market, 
+        return "[%s]%s|%s|%s|%s" % (self.car_version, # self.market, 
                                         self.price, self.seller, 
                                         self.miliage, self.link)

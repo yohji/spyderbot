@@ -21,67 +21,71 @@ def as24(maker = None, model = None, frm = None, to = None):
     if to != None:
         url += "&fregto=" + to
 
-    page = 1
-    url = url.replace('[PAGE]', str(page))
-
     cars = list()
 
     # TODO: markets
-    # TODO: pagination
 
-    with urllib.request.urlopen(url) as resp:
-        tree = HTMLParser(resp.read())
+    page = 1
+    while True:
+        url_page = url.replace('[PAGE]', str(page))
 
-        for item in tree.css('.cldt-summary-full-item'):
+        with urllib.request.urlopen(url_page) as resp:
+            root = HTMLParser(resp.read()).css('.cldt-summary-full-item')
 
-            carm = CarModel()
-            carv = CarVersion()
-            carv.car_model = carm
-            caro = CarOffer()
-            caro.car_version = carv
+            if len(root) == 0:
+                break
 
-            for node in item.traverse():
-                # print("%s: %s -> %s" % (node, node.attributes, node.text(deep = False, strip = True)))
-                attrs = node.attributes
+            for item in root:
 
-                if 'class' in attrs:
+                carm = CarModel()
+                carv = CarVersion()
+                carv.car_model = carm
+                caro = CarOffer()
+                caro.car_version = carv
 
-                    if attrs['class'] == 'cldt-summary-full-item':
-                        mm = attrs['data-tracking-name'].split('|')
-                        carm.maker = mm[0]
-                        carm.model = mm[1]
+                for node in item.traverse():
+                    # print("%s: %s -> %s" % (node, node.attributes, node.text(deep = False, strip = True)))
+                    attrs = node.attributes
 
-                        caro.price = int(attrs['data-tracking-price'])
-                        caro.seller = attrs['data-customerid']
+                    if 'class' in attrs:
 
-                    elif attrs['class'] == 'cldt-summary-version sc-ellipsis':
-                        carv.version = node.text()
+                        if attrs['class'] == 'cldt-summary-full-item':
+                            mm = attrs['data-tracking-name'].split('|')
+                            carm.maker = mm[0]
+                            carm.model = mm[1]
 
-                    elif attrs['class'] == 'summary_item_no_bottom_line' and carv.fuel == None:
-                        # carv.fuel = node.text()
-                        pass # FIXME
-                        
-                    elif attrs['class'] == 'cldf-summary-seller-contact-country':
-                        caro.market = node.text()
+                            caro.price = int(attrs['data-tracking-price'])
+                            caro.seller = attrs['data-customerid']
 
-                elif 'data-type' in attrs:
+                        elif attrs['class'] == 'cldt-summary-version sc-ellipsis':
+                            carv.version = node.text().strip()
 
-                    if attrs['data-type'] == 'first-registration':
-                        carv.year = int(node.text().split('/')[1])
+                        elif attrs['class'] == 'summary_item_no_bottom_line' and carv.fuel == None:
+                            carv.fuel = node.text().strip()
 
-                    elif attrs['data-type'] == 'mileage':
-                        caro.miliage = int(re.sub('[^0-9]', '', node.text()))
+                        elif attrs['class'] == 'cldf-summary-seller-contact-country':
+                            # caro.market = node.text().strip()
+                            pass # FIXME
 
-                    elif attrs['data-type'] == 'transmission-type':
-                        # carv.gear = node.text()
-                        pass # FIXME
+                    elif 'data-type' in attrs:
 
-                elif 'data-item-name' in attrs:
+                        if attrs['data-type'] == 'first-registration':
+                            carv.year = int(node.text().strip().split('/')[1])
 
-                    if attrs['data-item-name'] == 'detail-page-link':
-                        caro.link = DOMAIN_URL + attrs['href']
+                        elif attrs['data-type'] == 'mileage':
+                            caro.miliage = int(re.sub('[^0-9]', '', node.text().strip()))
 
-            print(caro)
-            cars.append(caro)
+                        elif attrs['data-type'] == 'transmission-type':
+                            carv.gear = node.text().strip()
+
+                    elif 'data-item-name' in attrs:
+
+                        if attrs['data-item-name'] == 'detail-page-link':
+                            caro.link = DOMAIN_URL + attrs['href']
+
+                print(caro)
+                cars.append(caro)
+
+        page += 1
 
     return cars

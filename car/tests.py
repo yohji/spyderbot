@@ -9,6 +9,7 @@ class CrawlerTestCase(TestCase):
 
     def test_as24(self):
 
-        # self.assertEqual(as24(), 'without parameters')
-        # self.assertEqual(as24('triumph'), 'maker is triumph')
-        self.assertEqual(as24('triumph', 'spitfire'), 'maker is triumph and model is spitfire')
+        cars = as24('triumph', 'spitfire')
+
+        self.assertIsNotNone(cars, 'cars is None')
+        self.assertNotEqual(len(cars), 0, 'cars is empty')
