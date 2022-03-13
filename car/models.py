@@ -26,7 +26,8 @@ class CarModel (models.Model):
         m.update(self.model.encode())
         self.hashkey = m.hexdigest()
 
-        super().save(*args, **kwargs)
+        if not self.objects.filter(hashkey=[self.hashkey]).exists():
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return "[%s|%s]" % (self.maker, self.model)
@@ -47,10 +48,11 @@ class CarVersion (models.Model):
         m = hashlib.sha256()
         m.update(self.car_model.hashkey.encode())
         m.update(self.version.encode())
-        m.update(self.year.encode())
+        m.update(str(self.year).encode())
         self.hashkey = m.hexdigest()
 
-        super().save(*args, **kwargs)
+        if not self.objects.filter(hashkey=[self.hashkey]).exists():
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return "[%s|%s|%s|%s|%s]" % (self.car_model, self.version,
@@ -83,11 +85,49 @@ class CarOffer (models.Model):
         m.update(self.car_version.hashkey.encode())
         m.update(self.market.code.encode())
         m.update(self.source.encode())
-        m.update(self.price.encode())
+        m.update(str(self.price).encode())
         self.hashkey = m.hexdigest()
 
-        super().save(*args, **kwargs)
+        if not self.objects.filter(hashkey=[self.hashkey]).exists():
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return "[%s%s|%s|%s|%s|%s|%s]" % (self.car_version, self.source, self.market,
                                         self.price, self.seller, self.miliage, self.link)
+
+
+class Search (models.Model):
+
+    hashkey = models.CharField(primary_key = True, max_length = 64)
+    maker = models.CharField(max_length = 255)
+    model = models.CharField(max_length = 255, null = True)
+    frm = models.IntegerField(null = True)
+    to = models.IntegerField(null = True)
+    last = models.DateField()
+    timestamp = models.DateTimeField(auto_now = True)
+
+    def save(self, *args, **kwargs):
+
+        m = hashlib.sha256()
+        m.update(self.maker.encode())
+        m.update(self.model.encode())
+        m.update(str(self.frm).encode())
+        m.update(str(self.to).encode())
+        self.hashkey = m.hexdigest()
+
+        if not self.objects.filter(hashkey=[self.hashkey]).exists():
+            super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "[%s|%s|%s|%s|%s]" % (self.maker, self.model,
+                                  self.frm, self.to, self.last)
+
+
+class SearchLog (models.Model):
+
+    search = models.ForeignKey(Search, on_delete=models.PROTECT)
+    result = models.IntegerField(default = 0)
+    timestamp = models.DateTimeField(auto_now = True)
+
+    def __str__(self):
+        return "[%s|%s]" % (self.search, self.result)

@@ -1,8 +1,9 @@
 import re
 import time
-import random
+import logging
+import random as rnd
 
-import urllib
+import urllib.request
 from selectolax.parser import HTMLParser
 
 from .models import Market
@@ -26,6 +27,8 @@ def as24(maker = None, model = None, frm = None, to = None, sleep = False):
         url += "&fregto=" + str(to)
 
     cars = list()
+    log = logging.getLogger(__name__)
+
     for market in Market.objects.all():
 
         if market.as24 != None:
@@ -84,11 +87,12 @@ def as24(maker = None, model = None, frm = None, to = None, sleep = False):
                                 if attrs['data-item-name'] == 'detail-page-link':
                                     caro.link = DOMAIN_URL + attrs['href']
 
+                        log.debug(caro)
                         cars.append(caro)
 
                 page += 1
 
                 if sleep:
-                    time.sleep(1 + (random.random() * 10))
+                    time.sleep(1 + (rnd.random() * 10))
 
     return cars
