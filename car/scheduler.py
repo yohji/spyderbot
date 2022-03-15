@@ -7,6 +7,7 @@ from car.crawler import as24
 from car.models import CarModel
 from car.models import CarVersion
 from car.models import CarOffer
+from car.models import Source
 from car.models import Search
 from car.models import SearchLog
 
@@ -16,12 +17,18 @@ def crawler(search):
     cars = as24(maker = search.maker, model = search.model,
                 frm = search.frm, to = search.to, sleep = True)
 
-    # TODO save cars
+    for car in cars:
+        CarModel.save(car.car_version.car_model)
+        CarVersion.save(car.car_version)
+        CarOffer.save(car)
 
     search.last = dt.date.today()
     search.save()
 
-    SearchLog(search = search, result = len(cars)).save()
+    search_log = SearchLog(search = search, source = Source.AS24, result = len(cars))
+    search_log.save()
+
+    logging.getLogger(__name__).info(search_log)
 
 def gather(scheduler):
 
@@ -34,12 +41,10 @@ def gather(scheduler):
                               hour = (rnd.randint(now.hour + 1, 23)),
                               minute = (rnd.randint(0, 59)), args = [search])
 
-    logging.getLogger(__name__).info(scheduler.print_jobs())
-
 def start():
 
     scheduler = BackgroundScheduler()
-    gather(scheduler)
-
     scheduler.add_job(gather, 'cron', hour = 0, minute = 30, args = [scheduler])
     scheduler.start()
+
+    logging.getLogger(__name__).info(scheduler.print_jobs())
