@@ -44,6 +44,8 @@ def gather(scheduler):
 def start():
 
     scheduler = BackgroundScheduler()
+    gather(scheduler)
+    
     scheduler.add_job(gather, 'cron', hour = 0, minute = 30, args = [scheduler])
     scheduler.start()
 

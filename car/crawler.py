@@ -10,6 +10,7 @@ from .models import Market
 from .models import CarModel
 from .models import CarVersion
 from .models import CarOffer
+from .models import Source
 
 
 def as24(maker = None, model = None, frm = None, to = None, sleep = False):
@@ -48,8 +49,7 @@ def as24(maker = None, model = None, frm = None, to = None, sleep = False):
 
                         carm = CarModel()
                         carv = CarVersion(car_model = carm)
-                        caro = CarOffer(car_version = carv, market = market,
-                                        source = CarOffer.SOURCE_AS24)
+                        caro = CarOffer(car_version = carv, market = market, source = Source.AS24)
 
                         for node in item.traverse():
                             # print("%s: %s -> %s" % (node, node.attributes, node.text(deep = False, strip = True)))

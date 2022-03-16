@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('code', models.CharField(max_length=2, primary_key=True, serialize=False)),
                 ('description', models.CharField(max_length=25)),
-                ('as24', models.CharField(max_length=1, null=True)),
+                ('as24', models.CharField(max_length=2, null=True)),
             ],
         ),
         migrations.CreateModel(

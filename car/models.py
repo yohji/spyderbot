@@ -6,7 +6,7 @@ class Market (models.Model):
 
     code = models.CharField(primary_key = True, max_length = 2)
     description = models.CharField(max_length = 25)
-    as24 = models.CharField(null = True, max_length = 1)
+    as24 = models.CharField(null = True, max_length = 2)
 
     def __str__(self):
         return self.description
